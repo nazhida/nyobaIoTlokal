@@ -1,0 +1,32 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(4, 5);
+int lampu = 0;
+int kipas = 2;
+
+void setup() {
+  pinMode(lampu, OUTPUT);
+  pinMode(kipas, OUTPUT);
+  mySerial.begin(9600);
+  Serial.begin(9600);
+}
+
+void loop() {
+  
+  if (mySerial.available() > 0) {
+    int reading = mySerial.read();
+
+    if (reading == 1) {
+      digitalWrite(lampu, HIGH);
+    }
+    else if (reading == 2) {
+      digitalWrite(lampu, LOW);
+    }
+    else if (reading == 3) {
+      digitalWrite(kipas, HIGH);
+    }
+    else if (reading == 4) {
+      digitalWrite(kipas, LOW);
+    }
+  }
+}

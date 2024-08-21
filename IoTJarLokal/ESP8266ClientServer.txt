@@ -1,0 +1,101 @@
+#include <ESP8266WiFi.h>
+#include <WifiClient.h>
+#include <ESP8266WebServer.h>
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(4, 5);
+const char *ssid = "usernameWiFi";
+const char *password = "passWiFi";
+
+// setting IP Address----------------------------------------------------
+
+
+ESP8266WebServer server(80);
+
+String webpage;
+
+void setup(){
+  Serial.begin(9600);
+  delay(10);
+  mySerial.begin(9600);
+  delay(10);
+  Serial.print(" Connect to : ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED)
+{
+  delay(500);
+  Serial.print("....?");
+}
+Serial.print("\n");
+Serial.print("IP Address : ");
+Serial.print(WiFi.localIP());
+Serial.print("\n");
+Serial.print("Connect to : ");
+Serial.print(ssid);
+
+//Web design ------------------------------------------------------------------
+
+webpage+="<head>";
+webpage+="<meta name=\"viewport\" content=\"width=device-width, initial-scale=1 \">";
+webpage+="<style>";
+webpage+="button {border: none; color: white; padding: 10px 30px; text-decoration: none; font-size: 20px; margin: 10px; border-radius: 50px;}";
+webpage+="div {display: flex; flex-wrap: row; justify-content: center; padding: 0px 10px;} .switch {display: flex; flex-direction: column;} h4 {padding: 10px 30px; }";
+webpage+=".buttonon {background-color: greenyellow;} .buttonoff {background-color: red;}";
+webpage+="</style>";
+webpage+="</head>";
+webpage+="<body>";
+webpage+="<center><h2>PROJECT IOT</h2></center>";
+webpage+="<div><div class='switch'><h4>Lampu</h4><a href=\"onlamp\"\"><button class='buttonon'>On</button></a>";
+webpage+="<a href=\"offlamp\"\"><button class='buttonoff'>Off</button></a></div>";
+webpage+="<div class='switch'><h4>Kipas</h4><a href=\"onfan\"\"><button class='buttonon'>On</button></a>";
+webpage+="<a href=\"offfan\"\"><button class='buttonoff'>Off</button></a></div></div>";
+webpage+="</body>";
+
+//--------------------------------------------------------------------------------
+
+server.on("/", [] () {
+  server.send(200, "text/html", webpage);
+});
+
+// ON OFF Lamp--------------------------------------------------------
+server.on("/onlamp", [] () {
+  server.send(200, "text/html", webpage);
+
+  mySerial.write(1);
+  delay(1000);
+});
+
+server.on("/offlamp", [] () {
+  server.send(200, "text/html", webpage);
+
+  mySerial.write(2);
+  delay(1000);
+});
+
+// ON OFF Fan--------------------------------------------------------
+server.on("/onfan", [] () {
+  server.send(200, "text/html", webpage);
+
+  mySerial.write(3);
+  delay(1000);
+});
+
+server.on("/offfan", [] () {
+  server.send(200, "text/html", webpage);
+
+  mySerial.write(4);
+  delay(1000);
+});
+
+//-----------------------------------------------------------------------
+server.begin();
+Serial.println("Webserver dijalankan");
+}
+
+void loop()
+{  
+  server.handleClient();
+
+}
